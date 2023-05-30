@@ -1,0 +1,23 @@
+{
+  "name": "cloudflare-auth",
+  "version": "1.0.0",
+  "description": "JWT implementation for Cloudflare using D1",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Stu Kennedy",
+  "license": "ISC",
+  "dependencies": {
+    "cookie": "^0.5.0",
+    "jose": "^4.14.4",
+    "jsonwebtoken": "^9.0.0",
+    "kysely": "^0.25.0",
+    "kysely-d1": "^0.3.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/cookie": "^0.5.1",
+    "@types/uuid": "^9.0.1"
+  }
+}

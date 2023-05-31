@@ -14,7 +14,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const magicLink = `${url.origin}/verify?token=${token}`;
   try {
     await sendEmail(email, magicLink);
-    console.log('here');
     return htmlResponse(Toast('Check your email for magic link.'));
   } catch {
     return htmlResponse(Toast('Magic link failed to send!', 'alert-failure'));

@@ -37,7 +37,6 @@ export interface AuthConfig {
 export const login = async (email: string, env: Env) => {
   const token = uuidv4();
   // Store the token in the database
-  console.log({ email, token });
   const db = new Kysely<Database>({
     dialect: new D1Dialect({ database: env.DB }),
   });
@@ -113,7 +112,7 @@ export const verify = async (
     .setAudience(config.audience)
     .setExpirationTime(config.expiry)
     .sign(secret);
-  console.log({ jwt });
+  console.log('jwt', jwt);
   const accessCookie = `${config.cookieName}=${jwt}; path=/; max-age=${config.expiry}; SameSite=Lax; HttpOnly; Secure`;
   return new Response(
     `<script>window.location.href = '${url.origin}${config.redirectTo}';</script>`,

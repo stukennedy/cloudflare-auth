@@ -1,9 +1,11 @@
 import { AuthConfig } from 'cloudflare-auth';
 
 export const authConfig: AuthConfig = {
-  SECRET_KEY: 'this_is_your_Secret_Key',
-  ISSUER: 'urn:continuata:issuer',
-  AUDIENCE: 'urn:continuata:audience',
-  EXPIRY: '2h',
-  COOKIE_NAME: 'cf-auth-token',
+  secretKey: 'this_is_your_secretKey',
+  issuer: 'urn:continuata:issuer',
+  audience: 'urn:continuata:audience',
+  expiry: '2h',
+  cookieName: 'cf-auth-token',
+  redirectTo: '/dash',
+  loginPath: '/',
 };

@@ -25,11 +25,13 @@ export interface Database {
 }
 
 export interface AuthConfig {
-  SECRET_KEY: string;
-  ISSUER: string;
-  AUDIENCE: string;
-  EXPIRY: string;
-  COOKIE_NAME: string;
+  secretKey: string;
+  issuer: string;
+  audience: string;
+  expiry: string;
+  cookieName: string;
+  redirectTo: string;
+  loginPath: string;
 }
 
 export const login = async (email: string, env: Env) => {
@@ -65,9 +67,9 @@ export const logout = async (
   config: AuthConfig,
   url: URL
 ): Promise<Response> => {
-  const accessCookie = `${config.COOKIE_NAME}=''; path=/; max-age=-1; SameSite=Lax; HttpOnly; Secure`;
+  const accessCookie = `${config.cookieName}=''; path=/; max-age=-1; SameSite=Lax; HttpOnly; Secure`;
   const response = new Response(
-    `<script>window.location.href = '${url.origin}/';</script>`
+    `<script>window.location.href = '${url.origin}${config.loginPath}';</script>`
   );
   response.headers.set('Set-Cookie', accessCookie);
   response.headers.set('Content-Type', 'text/html');
@@ -102,19 +104,19 @@ export const verify = async (
     throw new Error('No user found');
   }
 
-  const secret = new TextEncoder().encode(config.SECRET_KEY);
+  const secret = new TextEncoder().encode(config.secretKey);
   const alg = 'HS256';
   const jwt = await new jose.SignJWT({ uid: user.uid, email })
     .setProtectedHeader({ alg })
     .setIssuedAt()
-    .setIssuer(config.ISSUER)
-    .setAudience(config.AUDIENCE)
-    .setExpirationTime(config.EXPIRY)
+    .setIssuer(config.issuer)
+    .setAudience(config.audience)
+    .setExpirationTime(config.expiry)
     .sign(secret);
   console.log({ jwt });
-  const accessCookie = `${config.COOKIE_NAME}=${jwt}; path=/; max-age=${config.EXPIRY}; SameSite=Lax; HttpOnly; Secure`;
+  const accessCookie = `${config.cookieName}=${jwt}; path=/; max-age=${config.expiry}; SameSite=Lax; HttpOnly; Secure`;
   return new Response(
-    `<script>window.location.href = '${url.origin}/dash/';</script>`,
+    `<script>window.location.href = '${url.origin}${config.redirectTo}';</script>`,
     {
       headers: {
         'Set-Cookie': accessCookie,
@@ -128,12 +130,12 @@ export const middlewareGuard =
   (authConfig: AuthConfig): PagesFunction =>
   async ({ request, next }) => {
     const cookie = parse(request.headers.get('Cookie') || '');
-    const jwt = cookie[authConfig.COOKIE_NAME];
-    const secret = new TextEncoder().encode(authConfig.SECRET_KEY);
+    const jwt = cookie[authConfig.cookieName];
+    const secret = new TextEncoder().encode(authConfig.secretKey);
     try {
       await jose.jwtVerify(jwt, secret, {
-        issuer: authConfig.ISSUER,
-        audience: authConfig.AUDIENCE,
+        issuer: authConfig.issuer,
+        audience: authConfig.audience,
       });
       return next();
     } catch {
@@ -147,12 +149,12 @@ export const isAuthorised = async (
   request: Request
 ): Promise<boolean> => {
   const cookie = parse(request.headers.get('Cookie') || '');
-  const jwt = cookie[authConfig.COOKIE_NAME];
-  const secret = new TextEncoder().encode(authConfig.SECRET_KEY);
+  const jwt = cookie[authConfig.cookieName];
+  const secret = new TextEncoder().encode(authConfig.secretKey);
   try {
     await jose.jwtVerify(jwt, secret, {
-      issuer: authConfig.ISSUER,
-      audience: authConfig.AUDIENCE,
+      issuer: authConfig.issuer,
+      audience: authConfig.audience,
     });
     return true;
   } catch {

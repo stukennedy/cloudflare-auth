@@ -1,6 +1,6 @@
 import { html, htmlResponse } from 'cloudflare-htmx';
-import { logout } from '../../..';
-import { authConfig } from '@src/lib/constants';
+import { logout } from 'cloudflare-auth';
+import { authConfig } from '@lib/constants';
 
 export const onRequestPost: PagesFunction = async ({ request }) => {
   return logout(authConfig, new URL(request.url));

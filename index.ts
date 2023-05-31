@@ -3,7 +3,34 @@ import { Kysely } from 'kysely';
 import { D1Dialect } from 'kysely-d1';
 import { v4 as uuidv4 } from 'uuid';
 import { parse } from 'cookie';
-import { Env, Database, AuthConfig } from './interfaces';
+
+export interface Env {
+  DB: D1Database;
+}
+
+export interface UserToken {
+  email: string;
+  token: string;
+}
+
+export interface User {
+  uid: string;
+  email: string;
+  created_at?: Date;
+}
+
+export interface Database {
+  user_tokens: UserToken;
+  users: User;
+}
+
+export interface AuthConfig {
+  SECRET_KEY: string;
+  ISSUER: string;
+  AUDIENCE: string;
+  EXPIRY: string;
+  COOKIE_NAME: string;
+}
 
 export const login = async (email: string, env: Env) => {
   const token = uuidv4();
@@ -72,7 +99,7 @@ export const verify = async (
     .where('email', '=', email)
     .executeTakeFirst();
   if (!user) {
-    return new Response('No user found.', { status: 401 });
+    throw new Error('No user found');
   }
 
   const secret = new TextEncoder().encode(config.SECRET_KEY);
@@ -86,21 +113,22 @@ export const verify = async (
     .sign(secret);
   console.log({ jwt });
   const accessCookie = `${config.COOKIE_NAME}=${jwt}; path=/; max-age=${config.EXPIRY}; SameSite=Lax; HttpOnly; Secure`;
-  const response = new Response(
-    `<script>window.location.href = '${url.origin}/dash/';</script>`
+  return new Response(
+    `<script>window.location.href = '${url.origin}/dash/';</script>`,
+    {
+      headers: {
+        'Set-Cookie': accessCookie,
+        'Content-Type': 'text/html',
+      },
+    }
   );
-  response.headers.set('Set-Cookie', accessCookie);
-  response.headers.set('Content-Type', 'text/html');
-  return response;
 };
 
-export const routeGuard =
+export const middlewareGuard =
   (authConfig: AuthConfig): PagesFunction =>
   async ({ request, next }) => {
-    console.log('/dash/_middleware.ts');
     const cookie = parse(request.headers.get('Cookie') || '');
     const jwt = cookie[authConfig.COOKIE_NAME];
-    console.log({ jwt });
     const secret = new TextEncoder().encode(authConfig.SECRET_KEY);
     try {
       await jose.jwtVerify(jwt, secret, {
@@ -113,3 +141,21 @@ export const routeGuard =
       return Response.redirect(url.origin, 301);
     }
   };
+
+export const isAuthorised = async (
+  authConfig: AuthConfig,
+  request: Request
+): Promise<boolean> => {
+  const cookie = parse(request.headers.get('Cookie') || '');
+  const jwt = cookie[authConfig.COOKIE_NAME];
+  const secret = new TextEncoder().encode(authConfig.SECRET_KEY);
+  try {
+    await jose.jwtVerify(jwt, secret, {
+      issuer: authConfig.ISSUER,
+      audience: authConfig.AUDIENCE,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+};

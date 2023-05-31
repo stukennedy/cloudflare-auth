@@ -1,4 +1,4 @@
-import { AuthConfig } from '../../../interfaces';
+import { AuthConfig } from 'cloudflare-auth';
 
 export const authConfig: AuthConfig = {
   SECRET_KEY: 'this_is_your_Secret_Key',

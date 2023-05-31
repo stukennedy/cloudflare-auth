@@ -1,4 +1,4 @@
-import { authConfig } from '@src/lib/constants';
-import { routeGuard } from '../../..';
+import { authConfig } from 'lib/constants';
+import { middlewareGuard } from 'cloudflare-auth';
 
-export const onRequest = [routeGuard(authConfig)];
+export const onRequest = [middlewareGuard(authConfig)];

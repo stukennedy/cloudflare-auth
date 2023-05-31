@@ -14,10 +14,6 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "baseUrl": "src",
-    "paths": {
-      "@*": ["*"],
-      "cloudflare-auth": ["../../"]
-    }
+    "baseUrl": "./"
   }
 }

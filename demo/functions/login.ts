@@ -1,7 +1,7 @@
-import { login, Env } from 'cloudflare-auth';
+import { generateToken, Env } from 'cloudflare-auth';
 import { sendEmail } from '@lib/email';
 import Toast from '@components/Toast';
-import { htmlResponse } from 'cloudflare-htmx';
+import { html, htmlResponse } from 'cloudflare-htmx';
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const url = new URL(request.url);
@@ -10,11 +10,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!email) {
     return htmlResponse(Toast('Email not specified'));
   }
-  const token = await login(email, env);
+  const token = await generateToken(email, env);
   const magicLink = `${url.origin}/verify?token=${token}`;
   try {
     await sendEmail(email, magicLink);
-    return htmlResponse(Toast('Check your email for magic link.'));
+    return htmlResponse(Toast(html` <a class="link text-primary" href="${magicLink}">Click here to login</a> `, 'alert-success', false));
   } catch {
     return htmlResponse(Toast('Magic link failed to send!', 'alert-failure'));
   }

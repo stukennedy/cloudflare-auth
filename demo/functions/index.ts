@@ -10,7 +10,6 @@ export const onRequestGet: PagesFunction = () =>
             <input
               id="email"
               name="email"
-              data-cy="email"
               class="input text-xl bg-neutral h-14 pl-10 pt-2 pb-2 w-full md:w-96"
               type="email"
               placeholder="enter email address"

@@ -1,8 +1,8 @@
 {
   "name": "cloudflare-auth",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "JWT implementation for Cloudflare using D1",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

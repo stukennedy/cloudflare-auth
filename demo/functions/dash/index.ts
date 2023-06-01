@@ -9,9 +9,11 @@ export const onRequestPost: PagesFunction = async ({ request }) => {
 export const onRequestGet: PagesFunction = () =>
   htmlResponse(
     html`
-      <form method="post" action="/dash">
-        <h1>Protected Route</h1>
-        <button type="submit">Logout</button>
-      </form>
+      <div class="text-center pt-10 h-screen">
+        <form method="post" action="/dash">
+          <h1 class="text-3xl text-primary mb-4">This is a protected route</h1>
+          <button class="btn btn-secondary w-96" type="submit">Logout</button>
+        </form>
+      </div>
     `
   );

@@ -42,8 +42,8 @@ export const isAuthorised = async (
 export const getJWTPayload = async (
   authConfig: CloudflareAuth.AuthConfig,
   request: Request
-): Promise<jose.JWTPayload> => {
+): Promise<CloudflareAuth.JWTPayload> => {
   const cookie = parse(request.headers.get('Cookie') || '');
   const jwt = cookie[authConfig.cookieName];
-  return jose.decodeJwt(jwt);
+  return jose.decodeJwt(jwt) as CloudflareAuth.JWTPayload;
 };

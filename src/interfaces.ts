@@ -1,3 +1,5 @@
+import * as jose from 'jose';
+
 export interface Env {
   DB: D1Database;
 }
@@ -28,4 +30,9 @@ export interface AuthConfig {
   cookieName: string;
   redirectTo: string;
   loginPath: string;
+}
+
+export interface JWTPayload extends jose.JWTPayload {
+  uid: string;
+  email: string;
 }

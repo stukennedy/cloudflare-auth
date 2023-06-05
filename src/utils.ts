@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import * as CloudflareAuth from './interfaces';
 
+const SALT = 'sdf82dwlWs>.s.akuidnnSwDESDh88wkk$adn@@hjk1u89pp=89b';
+
 export const generateToken = async (email: string, env: CloudflareAuth.Env) => {
   const token = uuidv4();
   // Store the token in the database
@@ -28,7 +30,10 @@ export const generateToken = async (email: string, env: CloudflareAuth.Env) => {
     .executeTakeFirst();
   if (!users_row) {
     const uid = uuidv4();
-    await db.insertInto('users').values({ uid, email }).execute();
+    await db
+      .insertInto('users')
+      .values({ uid, email, verified: true })
+      .execute();
   }
   return token;
 };
@@ -49,4 +54,14 @@ export const generateJWT = async (
     .sign(secret);
   console.log('jwt', jwt);
   return jwt;
+};
+
+export const hashPassword = async (password: string) => {
+  const hashedPassword = await crypto.subtle.digest(
+    {
+      name: 'SHA-256',
+    },
+    new TextEncoder().encode(password + SALT)
+  );
+  return String(hashedPassword);
 };

@@ -1,36 +1,28 @@
 import { Kysely } from 'kysely';
 import { D1Dialect } from 'kysely-d1';
+import { v4 as uuidv4 } from 'uuid';
 
 import * as CloudflareAuth from './interfaces';
-import { generateJWT, hashPassword } from './utils';
+import { generateJWT, generateToken, hashPassword } from './utils';
 
-export const login = async (
+export const signup = async (
   email: string,
   password: string,
-  env: CloudflareAuth.Env,
-  config: CloudflareAuth.AuthConfig
+  env: CloudflareAuth.Env
 ) => {
   const db = new Kysely<CloudflareAuth.Database>({
     dialect: new D1Dialect({ database: env.DB }),
   });
-  const users_row = await db
-    .selectFrom('users')
-    .selectAll()
-    .where('email', '=', email)
-    .executeTakeFirst();
-  if (!users_row) {
-    throw new Error('User not found');
-  }
-  if (users_row.verified === false) {
-    throw new Error('User not verified');
-  }
   const hashedPassword = await hashPassword(password);
-  if (hashedPassword !== users_row.password) {
-    throw new Error('Invalid password');
-  }
+  const uid = uuidv4();
+  await db
+    .insertInto('users')
+    .values({ uid, email, password: hashedPassword, verified: false })
+    .execute();
+  return await generateToken(email, env);
 };
 
-export const verify = async (
+export const verifyEmail = async (
   token: string,
   env: CloudflareAuth.Env,
   config: CloudflareAuth.AuthConfig,
@@ -53,10 +45,16 @@ export const verify = async (
     .selectFrom('users')
     .selectAll()
     .where('email', '=', email)
+    .where('verified', '=', false)
     .executeTakeFirst();
   if (!user) {
-    throw new Error('No user found');
+    throw new Error('No unverified user found');
   }
+  await db
+    .updateTable('users')
+    .set({ verified: true })
+    .where('email', '=', email)
+    .execute();
 
   const jwt = await generateJWT(user.uid, email, config);
   const accessCookie = `${config.cookieName}=${jwt}; path=/; max-age=${config.expiry}; SameSite=Lax; HttpOnly; Secure`;
@@ -69,17 +67,4 @@ export const verify = async (
       },
     }
   );
-};
-
-export const logout = async (
-  config: CloudflareAuth.AuthConfig,
-  url: URL
-): Promise<Response> => {
-  const accessCookie = `${config.cookieName}=''; path=/; max-age=-1; SameSite=Lax; HttpOnly; Secure`;
-  const response = new Response(
-    `<script>window.location.href = '${url.origin}${config.loginPath}';</script>`
-  );
-  response.headers.set('Set-Cookie', accessCookie);
-  response.headers.set('Content-Type', 'text/html');
-  return response;
 };

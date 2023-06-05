@@ -11,6 +11,7 @@ export interface User {
   uid: string;
   email: string;
   password?: string;
+  verified: boolean;
   created_at?: Date;
 }
 

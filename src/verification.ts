@@ -38,3 +38,12 @@ export const isAuthorised = async (
     return false;
   }
 };
+
+export const getJWTPayload = async (
+  authConfig: CloudflareAuth.AuthConfig,
+  request: Request
+): Promise<jose.JWTPayload> => {
+  const cookie = parse(request.headers.get('Cookie') || '');
+  const jwt = cookie[authConfig.cookieName];
+  return jose.decodeJwt(jwt);
+};

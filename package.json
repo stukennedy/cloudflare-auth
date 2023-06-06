@@ -1,6 +1,6 @@
 {
   "name": "cloudflare-auth",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "JWT implementation for Cloudflare using D1",
   "main": "src/index.ts",
   "scripts": {

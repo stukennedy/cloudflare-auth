@@ -13,7 +13,7 @@ export interface User {
   uid: string;
   email: string;
   password?: string;
-  verified: boolean;
+  verified: 0 | 1;
   created_at?: Date;
 }
 

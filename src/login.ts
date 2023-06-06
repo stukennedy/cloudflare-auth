@@ -21,7 +21,7 @@ export const login = async (
   if (!users_row) {
     throw new Error('User not found');
   }
-  if (users_row.verified === false) {
+  if (users_row.verified === 0) {
     throw new Error('User not verified');
   }
   const hashedPassword = await hashPassword(password);

@@ -30,10 +30,7 @@ export const generateToken = async (email: string, env: CloudflareAuth.Env) => {
     .executeTakeFirst();
   if (!users_row) {
     const uid = uuidv4();
-    await db
-      .insertInto('users')
-      .values({ uid, email, verified: true })
-      .execute();
+    await db.insertInto('users').values({ uid, email, verified: 1 }).execute();
   }
   return token;
 };

@@ -1,6 +1,6 @@
 import { Kysely } from 'kysely';
 import { D1Dialect } from 'kysely-d1';
-import { v4 as uuidv4 } from 'uuid';
+import { uuid } from '@cfworker/uuid';
 
 import * as CloudflareAuth from './interfaces';
 import { generateJWT, generateToken, hashPassword } from './utils';
@@ -14,10 +14,10 @@ export const signup = async (
     dialect: new D1Dialect({ database: env.DB }),
   });
   const hashedPassword = await hashPassword(password);
-  const uid = uuidv4();
+  const uid = uuid();
   await db
     .insertInto('users')
-    .values({ uid, email, password: hashedPassword, verified: false })
+    .values({ uid, email, password: hashedPassword, verified: 0 })
     .execute();
   return await generateToken(email, env);
 };
@@ -45,14 +45,14 @@ export const verifyEmail = async (
     .selectFrom('users')
     .selectAll()
     .where('email', '=', email)
-    .where('verified', '=', false)
+    .where('verified', '=', 0)
     .executeTakeFirst();
   if (!user) {
     throw new Error('No unverified user found');
   }
   await db
     .updateTable('users')
-    .set({ verified: true })
+    .set({ verified: 1 })
     .where('email', '=', email)
     .execute();
 

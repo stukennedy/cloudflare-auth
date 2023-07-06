@@ -1,14 +1,14 @@
 import * as jose from 'jose';
 import { Kysely } from 'kysely';
 import { D1Dialect } from 'kysely-d1';
-import { v4 as uuidv4 } from 'uuid';
+import { uuid } from '@cfworker/uuid';
 
 import * as CloudflareAuth from './interfaces';
 
 const SALT = 'sdf82dwlWs>.s.akuidnnSwDESDh88wkk$adn@@hjk1u89pp=89b';
 
 export const generateToken = async (email: string, env: CloudflareAuth.Env) => {
-  const token = uuidv4();
+  const token = uuid();
   // Store the token in the database
   const db = new Kysely<CloudflareAuth.Database>({
     dialect: new D1Dialect({ database: env.DB }),
@@ -29,7 +29,7 @@ export const generateToken = async (email: string, env: CloudflareAuth.Env) => {
     .where('email', '=', email)
     .executeTakeFirst();
   if (!users_row) {
-    const uid = uuidv4();
+    const uid = uuid();
     await db.insertInto('users').values({ uid, email, verified: 1 }).execute();
   }
   return token;

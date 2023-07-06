@@ -1,10 +1,13 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@cfworker/uuid':
+    specifier: ^1.12.4
+    version: 1.12.4
   cookie:
     specifier: ^0.5.0
     version: 0.5.0
@@ -20,9 +23,6 @@ dependencies:
   kysely-d1:
     specifier: ^0.3.0
     version: 0.3.0(kysely@0.25.0)
-  uuid:
-    specifier: ^9.0.0
-    version: 9.0.0
 
 devDependencies:
   '@cloudflare/workers-types':
@@ -39,6 +39,10 @@ devDependencies:
     version: 5.0.4
 
 packages:
+
+  /@cfworker/uuid@1.12.4:
+    resolution: {integrity: sha512-aw4lxCT4NLbGqlTScWPtPrZrg4TO6HCZCnNUAeC4yTOvkXjJGdJP6S5NCY9vtP2FruLIC+vYCvUP98fHXtF7kg==}
+    dev: false
 
   /@cloudflare/workers-types@4.20230518.0:
     resolution: {integrity: sha512-A0w1V+5SUawGaaPRlhFhSC/SCDT9oQG8TMoWOKFLA4qbqagELqEAFD4KySBIkeVOvCBLT1DZSYBMCxbXddl0kw==}
@@ -141,11 +145,6 @@ packages:
     engines: {node: '>=12.20'}
     hasBin: true
     dev: true
-
-  /uuid@9.0.0:
-    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
-    hasBin: true
-    dev: false
 
   /yallist@4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}

@@ -1,0 +1,10 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "auth",
+      "database": "${workspaceFolder:cloudflare-auth}/demo/.wrangler/state/v3/d1/21200feb-9032-4c7a-8364-4a080dbbdf02/db.sqlite"
+    }
+  ]
+}

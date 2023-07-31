@@ -3,7 +3,7 @@ import { getJWTPayload, logout } from 'cloudflare-auth';
 import { authConfig } from '@lib/constants';
 
 export const onRequestPost: PagesFunction = async ({ request }) => {
-  return logout(authConfig, new URL(request.url));
+  return logout(authConfig);
 };
 
 export const onRequestGet: PagesFunction = async ({ request }) => {

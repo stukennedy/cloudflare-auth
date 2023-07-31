@@ -8,4 +8,8 @@ export const authConfig: AuthConfig = {
   cookieName: 'cf-auth-token',
   redirectTo: '/dash',
   loginPath: '/',
+  allowUserSignup: true,
+  salt: 'sdf82dwlWs>.s.akuidnnSwDESDh88wkk$adn@@hjk1u89pp=89b',
+  adminEmail: 'info@continuata.com',
+  adminName: 'Continuata',
 };

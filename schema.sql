@@ -10,6 +10,6 @@ CREATE TABLE users (
   password TEXT,
   role TEXT DEFAULT 'user',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  active BOOLEAN DEFAULT 1,
+  active BOOLEAN DEFAULT 1
   verified BOOLEAN DEFAULT 1
 );

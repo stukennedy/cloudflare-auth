@@ -5,19 +5,20 @@ import { uuid } from '@cfworker/uuid';
 import * as CloudflareAuth from './interfaces';
 import { generateJWT, generateToken, hashPassword } from './utils';
 
-export const signup = async (
+export const signupWithPassword = async (
   email: string,
   password: string,
-  env: CloudflareAuth.Env
+  env: CloudflareAuth.Env,
+  config: CloudflareAuth.AuthConfig
 ) => {
   const db = new Kysely<CloudflareAuth.Database>({
     dialect: new D1Dialect({ database: env.DB }),
   });
-  const hashedPassword = await hashPassword(password);
+  const hashedPassword = await hashPassword(password, config);
   const uid = uuid();
   await db
     .insertInto('users')
-    .values({ uid, email, password: hashedPassword, verified: 0 })
+    .values({ uid, email, password: hashedPassword, role: 'user' })
     .execute();
   return await generateToken(email, env);
 };
@@ -25,14 +26,13 @@ export const signup = async (
 export const verifyEmail = async (
   token: string,
   env: CloudflareAuth.Env,
-  config: CloudflareAuth.AuthConfig,
-  url: URL
+  config: CloudflareAuth.AuthConfig
 ): Promise<Response> => {
   const db = new Kysely<CloudflareAuth.Database>({
     dialect: new D1Dialect({ database: env.DB }),
   });
   const row = await db
-    .selectFrom('user_tokens')
+    .selectFrom('auth_tokens')
     .selectAll()
     .where('token', '=', token)
     .executeTakeFirst();
@@ -40,7 +40,7 @@ export const verifyEmail = async (
     throw new Error('Token not found');
   }
   const email = row.email;
-  await db.deleteFrom('user_tokens').where('token', '=', token).execute();
+  await db.deleteFrom('auth_tokens').where('token', '=', token).execute();
   const user = await db
     .selectFrom('users')
     .selectAll()
@@ -58,13 +58,11 @@ export const verifyEmail = async (
 
   const jwt = await generateJWT(user.uid, email, config);
   const accessCookie = `${config.cookieName}=${jwt}; path=/; max-age=${config.expiry}; SameSite=Lax; HttpOnly; Secure`;
-  return new Response(
-    `<script>window.location.href = '${url.origin}${config.redirectTo}';</script>`,
-    {
-      headers: {
-        'Set-Cookie': accessCookie,
-        'Content-Type': 'text/html',
-      },
-    }
-  );
+  return new Response(null, {
+    status: 301,
+    headers: {
+      Location: config.redirectTo,
+      'Set-Cookie': accessCookie,
+    },
+  });
 };

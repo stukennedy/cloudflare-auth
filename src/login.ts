@@ -8,8 +8,7 @@ import { sendLoginMagicLinkEmail } from './email';
 export const loginWithPassword = async (
   email: string,
   password: string,
-  env: CloudflareAuth.Env,
-  config: CloudflareAuth.AuthConfig
+  env: CloudflareAuth.Env
 ) => {
   const db = new Kysely<CloudflareAuth.Database>({
     dialect: new D1Dialect({ database: env.DB }),
@@ -22,7 +21,7 @@ export const loginWithPassword = async (
   if (!users_row) {
     throw new Error('User not found');
   }
-  const hashedPassword = await hashPassword(password, config);
+  const hashedPassword = await hashPassword(password, env);
   if (hashedPassword !== users_row.password) {
     throw new Error('Invalid password');
   }
@@ -33,7 +32,7 @@ export const loginWithToken = async (
   email: string,
   env: CloudflareAuth.Env,
   urlOrigin: string,
-  config: CloudflareAuth.AuthConfig
+  allowUserSignup = false
 ) => {
   const db = new Kysely<CloudflareAuth.Database>({
     dialect: new D1Dialect({ database: env.DB }),
@@ -43,19 +42,19 @@ export const loginWithToken = async (
     .selectAll()
     .where('email', '=', email)
     .executeTakeFirst();
-  if (!users_row && !config.allowUserSignup) {
+  if (!users_row && !allowUserSignup) {
     throw new Error('User not found');
   }
   const token = await generateToken(email, env);
   const magicLink = `${urlOrigin}/verify?token=${token}`;
-  await sendLoginMagicLinkEmail(urlOrigin, email, magicLink, env, config);
+  await sendLoginMagicLinkEmail(urlOrigin, email, magicLink, env);
   return magicLink;
 };
 
 export const verify = async (
   token: string,
   env: CloudflareAuth.Env,
-  config: CloudflareAuth.AuthConfig
+  redirectTo: string
 ): Promise<Response> => {
   const db = new Kysely<CloudflareAuth.Database>({
     dialect: new D1Dialect({ database: env.DB }),
@@ -79,25 +78,26 @@ export const verify = async (
     throw new Error('No user found');
   }
 
-  const jwt = await generateJWT(user.uid, email, config);
-  const accessCookie = `${config.cookieName}=${jwt}; path=/; max-age=${config.expiry}; SameSite=Lax; HttpOnly; Secure`;
+  const jwt = await generateJWT(user.uid, email, env);
+  const accessCookie = `${env.COOKIE_NAME}=${jwt}; path=/; max-age=${env.EXPIRY}; SameSite=Lax; HttpOnly; Secure`;
   return new Response(null, {
     status: 301,
     headers: {
-      Location: config.redirectTo,
+      Location: redirectTo,
       'Set-Cookie': accessCookie,
     },
   });
 };
 
 export const logout = async (
-  config: CloudflareAuth.AuthConfig
+  env: CloudflareAuth.Env,
+  loginPath: string
 ): Promise<Response> => {
-  const accessCookie = `${config.cookieName}=''; path=/; max-age=-1; SameSite=Lax; HttpOnly; Secure`;
+  const accessCookie = `${env.COOKIE_NAME}=''; path=/; max-age=-1; SameSite=Lax; HttpOnly; Secure`;
   return new Response(null, {
     status: 301,
     headers: {
-      Location: config.loginPath,
+      Location: loginPath,
       'Set-Cookie': accessCookie,
     },
   });

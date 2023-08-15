@@ -1,13 +1,12 @@
 import { html, htmlResponse } from 'cloudflare-htmx';
-import { getJWTPayload, logout } from 'cloudflare-auth';
-import { authConfig } from '@lib/constants';
+import { getJWTPayload, logout, Env } from 'cloudflare-auth';
 
-export const onRequestPost: PagesFunction = async ({ request }) => {
-  return logout(authConfig);
+export const onRequestPost: PagesFunction<Env> = async ({ env }) => {
+  return logout(env, '/');
 };
 
-export const onRequestGet: PagesFunction = async ({ request }) => {
-  const payload = await getJWTPayload(authConfig, request);
+export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+  const payload = await getJWTPayload(request, env);
   return htmlResponse(
     html`
       <div class="text-center pt-10 h-screen">

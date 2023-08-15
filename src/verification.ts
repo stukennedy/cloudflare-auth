@@ -3,35 +3,37 @@ import { parse } from 'cookie';
 
 import * as CloudflareAuth from './interfaces';
 
-export const middlewareGuard =
-  (authConfig: CloudflareAuth.AuthConfig): PagesFunction =>
-  async ({ request, next }) => {
-    const cookie = parse(request.headers.get('Cookie') || '');
-    const jwt = cookie[authConfig.cookieName];
-    const secret = new TextEncoder().encode(authConfig.secretKey);
-    try {
-      await jose.jwtVerify(jwt, secret, {
-        issuer: authConfig.issuer,
-        audience: authConfig.audience,
-      });
-      return next();
-    } catch {
-      const url = new URL(request.url);
-      return Response.redirect(url.origin, 301);
-    }
-  };
-
-export const isAuthorised = async (
-  authConfig: CloudflareAuth.AuthConfig,
-  request: Request
-): Promise<boolean> => {
+export const middlewareGuard: PagesFunction<CloudflareAuth.Env> = async ({
+  request,
+  next,
+  env,
+}) => {
   const cookie = parse(request.headers.get('Cookie') || '');
-  const jwt = cookie[authConfig.cookieName];
-  const secret = new TextEncoder().encode(authConfig.secretKey);
+  const jwt = cookie[env.COOKIE_NAME];
+  const secret = new TextEncoder().encode(env.SECRET_KEY);
   try {
     await jose.jwtVerify(jwt, secret, {
-      issuer: authConfig.issuer,
-      audience: authConfig.audience,
+      issuer: env.ISSUER,
+      audience: env.AUDIENCE,
+    });
+    return next();
+  } catch {
+    const url = new URL(request.url);
+    return Response.redirect(url.origin, 301);
+  }
+};
+
+export const isAuthorised = async (
+  request: Request,
+  env: CloudflareAuth.Env
+): Promise<boolean> => {
+  const cookie = parse(request.headers.get('Cookie') || '');
+  const jwt = cookie[env.COOKIE_NAME];
+  const secret = new TextEncoder().encode(env.SECRET_KEY);
+  try {
+    await jose.jwtVerify(jwt, secret, {
+      issuer: env.ISSUER,
+      audience: env.AUDIENCE,
     });
     return true;
   } catch {
@@ -40,10 +42,10 @@ export const isAuthorised = async (
 };
 
 export const getJWTPayload = async (
-  authConfig: CloudflareAuth.AuthConfig,
-  request: Request
+  request: Request,
+  env: CloudflareAuth.Env
 ): Promise<CloudflareAuth.JWTPayload> => {
   const cookie = parse(request.headers.get('Cookie') || '');
-  const jwt = cookie[authConfig.cookieName];
+  const jwt = cookie[env.COOKIE_NAME];
   return jose.decodeJwt(jwt) as CloudflareAuth.JWTPayload;
 };

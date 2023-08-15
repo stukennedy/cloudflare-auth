@@ -6,7 +6,8 @@
     "deploy": "wrangler pages deploy ./static",
     "start": "wrangler pages dev ./static --experimental-local --compatibility-date=2023-05-18",
     "tailwind": "tailwindcss build -i ./tailwind.css -o ./static/css/output.css --watch",
-    "db:init": "wrangler d1 execute auth --local --file=./schema.sql"
+    "db:init:local": "wrangler d1 execute auth --local --file=./schema.sql",
+    "db:init": "wrangler d1 execute auth --file=./schema.sql"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230724.0",

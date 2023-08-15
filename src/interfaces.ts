@@ -1,12 +1,21 @@
 import * as jose from 'jose';
 
+export type UserRole = 'user' | 'admin' | 'super';
+
 export interface Env {
   DB: D1Database;
   DKIM_DOMAIN: string;
   DKIM_SELECTOR: string;
   DKIM_PRIVATE_KEY: string;
+  COOKIE_NAME: string;
+  SECRET_KEY: string;
+  ISSUER: string;
+  AUDIENCE: string;
+  EXPIRY: string;
+  ADMIN_EMAIL: string;
+  ADMIN_NAME: string;
+  SALT: string;
 }
-
 export interface UserToken {
   email: string;
   token: string;
@@ -19,7 +28,7 @@ export interface User {
   last_name?: string;
   password?: string;
   created_at?: string;
-  role: 'user' | 'admin' | 'super';
+  role: UserRole;
   active?: 0 | 1;
   verified?: 0 | 1;
 }
@@ -27,20 +36,6 @@ export interface User {
 export interface Database {
   auth_tokens: UserToken;
   users: User;
-}
-
-export interface AuthConfig {
-  secretKey: string;
-  issuer: string;
-  audience: string;
-  expiry: string;
-  cookieName: string;
-  redirectTo: string;
-  loginPath: string;
-  allowUserSignup: boolean;
-  salt: string;
-  adminEmail: string;
-  adminName: string;
 }
 
 export interface JWTPayload extends jose.JWTPayload {

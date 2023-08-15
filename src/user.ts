@@ -8,13 +8,12 @@ import { generateJWT, generateToken, hashPassword } from './utils';
 export const signupWithPassword = async (
   email: string,
   password: string,
-  env: CloudflareAuth.Env,
-  config: CloudflareAuth.AuthConfig
+  env: CloudflareAuth.Env
 ) => {
   const db = new Kysely<CloudflareAuth.Database>({
     dialect: new D1Dialect({ database: env.DB }),
   });
-  const hashedPassword = await hashPassword(password, config);
+  const hashedPassword = await hashPassword(password, env);
   const uid = uuid();
   await db
     .insertInto('users')
@@ -26,7 +25,7 @@ export const signupWithPassword = async (
 export const verifyEmail = async (
   token: string,
   env: CloudflareAuth.Env,
-  config: CloudflareAuth.AuthConfig
+  redirectTo: string
 ): Promise<Response> => {
   const db = new Kysely<CloudflareAuth.Database>({
     dialect: new D1Dialect({ database: env.DB }),
@@ -56,12 +55,12 @@ export const verifyEmail = async (
     .where('email', '=', email)
     .execute();
 
-  const jwt = await generateJWT(user.uid, email, config);
-  const accessCookie = `${config.cookieName}=${jwt}; path=/; max-age=${config.expiry}; SameSite=Lax; HttpOnly; Secure`;
+  const jwt = await generateJWT(user.uid, email, env);
+  const accessCookie = `${env.COOKIE_NAME}=${jwt}; path=/; max-age=${env.EXPIRY}; SameSite=Lax; HttpOnly; Secure`;
   return new Response(null, {
     status: 301,
     headers: {
-      Location: config.redirectTo,
+      Location: redirectTo,
       'Set-Cookie': accessCookie,
     },
   });

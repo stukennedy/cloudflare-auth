@@ -1,5 +1,4 @@
 import { Env } from './interfaces';
-import type { AuthConfig } from './interfaces';
 
 export const sendEmail = async (urlOrigin: string, payload: any) => {
   // Mailchannels not supported on localhost so just log the email
@@ -35,8 +34,7 @@ export const sendSignupMagicLinkEmail = async (
   urlOrigin: string,
   to: string,
   link: string,
-  env: Env,
-  config: AuthConfig
+  env: Env
 ) => {
   return await sendEmail(urlOrigin, {
     personalizations: [
@@ -48,8 +46,8 @@ export const sendSignupMagicLinkEmail = async (
       },
     ],
     from: {
-      email: config.adminEmail,
-      name: config.adminName,
+      email: env.ADMIN_EMAIL,
+      name: env.ADMIN_NAME,
     },
     subject: 'Verify your email address',
     content: [
@@ -65,8 +63,7 @@ export const sendLoginMagicLinkEmail = async (
   urlOrigin: string,
   to: string,
   link: string,
-  env: Env,
-  config: AuthConfig
+  env: Env
 ) => {
   return await sendEmail(urlOrigin, {
     personalizations: [
@@ -78,8 +75,8 @@ export const sendLoginMagicLinkEmail = async (
       },
     ],
     from: {
-      email: config.adminEmail,
-      name: config.adminName,
+      email: env.ADMIN_EMAIL,
+      name: env.ADMIN_NAME,
     },
     subject: 'Confirm login',
     content: [

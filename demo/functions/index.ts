@@ -1,7 +1,7 @@
-import { html, htmlResponse } from 'cloudflare-htmx';
+import { html, view } from 'cloudflare-htmx';
 
 export const onRequestGet: PagesFunction = () =>
-  htmlResponse(html`<div class="w-full h-screen p-10 text-center">
+  view(html`<div class="w-full h-screen p-10 text-center">
     <div class="flex justify-center pt-24 lg:pt-64">
       <div class="p-4 md:p-0 w-full md:w-96">
         <form hx-post="/login" hx-target="#toaster">

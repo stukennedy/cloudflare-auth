@@ -1,4 +1,4 @@
-import { html, htmlResponse } from 'cloudflare-htmx';
+import { html, view } from 'cloudflare-htmx';
 import { getJWTPayload, logout, Env } from 'cloudflare-auth';
 
 export const onRequestPost: PagesFunction<Env> = async ({ env }) => {
@@ -7,7 +7,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ env }) => {
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const payload = await getJWTPayload(request, env);
-  return htmlResponse(
+  return view(
     html`
       <div class="text-center pt-10 h-screen">
         <form method="post" action="/dash">

@@ -19,7 +19,7 @@ export const middlewareGuard: PagesFunction<CloudflareAuth.Env> = async ({
     return next();
   } catch {
     const url = new URL(request.url);
-    return Response.redirect(url.origin, 301);
+    return Response.redirect(url.origin, 303);
   }
 };
 

@@ -58,7 +58,7 @@ export const verifyEmail = async (
   const jwt = await generateJWT(user.uid, email, env);
   const accessCookie = `${env.COOKIE_NAME}=${jwt}; path=/; max-age=${env.EXPIRY}; SameSite=Lax; HttpOnly; Secure`;
   return new Response(null, {
-    status: 301,
+    status: 303,
     headers: {
       Location: redirectTo,
       'Set-Cookie': accessCookie,

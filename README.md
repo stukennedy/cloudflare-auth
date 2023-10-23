@@ -64,7 +64,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   try {
     return await verify(token!, env, authConfig, url);
   } catch {
-    return Response.redirect(url.origin, 301);
+    return Response.redirect(url.origin, 303);
   }
 };
 ```
